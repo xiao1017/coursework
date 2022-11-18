@@ -9,3 +9,10 @@ def read_file(file_address):
     return point_list
 
 print(read_file(file_address))
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+
