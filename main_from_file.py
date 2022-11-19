@@ -1,43 +1,32 @@
-polygon_file_address = 'C:/Users/XIAOYU/Desktop/polygon.csv'
 
-
-def read_file(polygon_file_address):
-    with open(polygon_file_address) as f:
+# 定义读取文件
+def read_file(file_address):
+    with open(file_address) as f:
         data = f.read().splitlines()
-    point_list_a = []
+    point_list = []
     for row in data:
-        point_list_a.append(row.split(','))
-    return point_list_a
+        point_list.append(row.split(','))
+    return point_list
+
+# 利用四个点建立line
 
 
-print(read_file(polygon_file_address))
+class Line():
+    def __init__(self, name, x1, x2, y1, y2):
+        self.__name = name
+        self.__x1 = float(x1)
+        self.__x2 = float(x2)
+        self.__y1 = float(y1)
+        self.__y2 = float(y2)
+
+    def get_name(self):
+        return self.__name
+
+    def get_point(self):
+        return self.__x1, self.__x2, self.__y1, self.__y2
 
 
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def get_x(self):
-        return self.x
-
-    def get_y(self):
-        return self.y
-
-
-class Line:
-    def __init__(self, point_1, point_2):
-        self.point_1 = point_1
-        self.point_2 = point_2
-
-    def get_point_1(self):
-        return self.point_1
-
-    def get_point2(self):
-        return self.point_2
-
-
-class Polygon:
+class Polygon():
     def __int__(self, points):
         self.points = points
 
@@ -80,3 +69,8 @@ def read_file(point_file_address):
 
 
 print(read_file(point_file_address))
+
+
+
+
+
