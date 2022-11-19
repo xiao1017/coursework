@@ -12,38 +12,50 @@ def read_file(file_address):
 
 
 class Line():
-    def __init__(self, name, x1, x2, y1, y2):
+    def __init__(self, name, x1, y1, x2, y2):
         self.__name = name
         self.__x1 = float(x1)
-        self.__x2 = float(x2)
         self.__y1 = float(y1)
+        self.__x2 = float(x2)
         self.__y2 = float(y2)
 
     def get_name(self):
         return self.__name
 
     def get_point(self):
-        return self.__x1, self.__x2, self.__y1, self.__y2
+        return self.__x1, self.__y1, self.__x2, self.__y2
+
+# 建立图形的class,并建立lines的list，第一行是名称 ，两个点组成一条线，用for循环-2,0行是id,因此选择point从1列开始
 
 
 class Polygon():
     def __int__(self, points):
-        self.points = points
+        self.__points = points
+        lines = []
+        for i in range(len(points)-2):
+            line = Line(name=points[i+1][0]+'-'+points[i+2][0], x1=points[i+1][1],
+                        y1=points[i+1][2], x2=points[i+2][1], y2=points[i+2][2])
+            lines.append(line)
+        self.__lines = lines
+
+# 定义选取所有点
 
     def get_points(self):
-        return self.points
+        return self.__points
 
-    def line(self):
-        res = []
-        points = self.get_points()
-        point_a = points[0]
-        for point_b in points[1:]:
-            res.append(Line(point_a.get_name() + '-' + point_b.get_name(), point_a, point_b))
-            point_a = point_b
-        res.append(Line(point_a.get_name() + '-' + points[0].get_name(), point_a, points[0]))
-        return res
+# 根据index得到特定的想要的点
 
+    def get_point(self, index):
+        return self._points[index]
 
+# 定义选取所有line
+    def get_lines(self):
+        return self.__lines
+
+# 根据index得到特定的想要的line
+
+    def get_line(self, index):
+        return self._lines[index]
 
 
 
@@ -69,8 +81,4 @@ def read_file(point_file_address):
 
 
 print(read_file(point_file_address))
-
-
-
-
 
