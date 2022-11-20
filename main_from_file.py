@@ -1,6 +1,16 @@
 from plotter import Plotter
+# define read file from file_address 定义读取文件
 
-# 利用四个点建立line
+
+def read_file(file_address):
+    with open(file_address) as f:
+        data = f.read().splitlines()
+    point_list = []  # creat point list
+    for row in data:
+        point_list.append(row.split(','))
+    return point_list
+
+# 创建line的class,利用(x1,y1),(x2,y2）表示线 Create a line class, use (x1, y1), (x2, y2) to represent the line
 
 
 class Line:
@@ -17,50 +27,39 @@ class Line:
     def get_point(self):
         return self.__x1, self.__y1, self.__x2, self.__y2
 
-# 建立图形的class,并建立lines的list，第一行是名称 ，两个点组成一条线，用for循环-2,0行是id,因此选择point从1列开始
+# Create a polygon class 建立图形的class,并建立lines的list，第一行是名称 ，两个点组成一条线，用for循环-2,0行是id,因此选择point从1列开始
 
 
 class Polygon:
     def __init__(self, points):
         self.__points = points
-        lines = []
-        for i in range(len(points)-2):
-            line = Line(name=points[i+1][0]+'-'+points[i+2][0], x1=points[i+1][1],
-                        y1=points[i+1][2], x2=points[i+2][1], y2=points[i+2][2])
+        lines = []  # create lines list
+        for i in range(len(points)-2):  # 0 row is header row, two points from a line, thus -2 由于第一行是标题行，两个点连成一条线，所以用-2
+            line = Line(name=points[i+1][0]+'-'+points[i+2][0], x1=points[i+1][1],  # (x1,y1):line start point
+                        y1=points[i+1][2], x2=points[i+2][1], y2=points[i+2][2])  # (x2,y2):line end point
             lines.append(line)
         self.__lines = lines
 
-# 定义选取所有点
+# 定义选取所有点 define all points selected
 
     def get_points(self):
         return self.__points
 
-# 根据index得到特定的想要的点
+# 根据index得到特定的想要的点 Define to get a specific point according to index
 
     def get_point(self, index):
         return self.__points[index]
 
-# 定义选取所有line
+# 定义选取所有line Define all lines selected
     def get_lines(self):
         return self.__lines
 
-# 根据index得到特定的想要的line
+# 根据index得到特定的想要的line Define to get a specific line according to index
 
     def get_line(self, index):
         return self.__lines[index]
 
-# 定义读取文件
-
-
-def read_file(file_address):
-    with open(file_address) as f:
-        data = f.read().splitlines()
-    point_list = []
-    for row in data:
-        point_list.append(row.split(','))
-    return point_list
-
-# mbr method 用for循环语句，比较出x的最大最小值，比较出y的最大最小值
+# Define MBR method (用for循环语句，比较出x的最大最小值，比较出y的最大最小值 在pdf里面解释）
 
 
 def mbr_method(x, y, polygon):
@@ -74,60 +73,46 @@ def mbr_method(x, y, polygon):
         maxx = max(maxx, point[1])
         miny = min(miny, point[2])
         maxy = max(maxy, point[2])
-    if x < minx or x > maxx or y < miny or y > maxy:      # 没用括号 判断点是否在区域外
+    if x < minx or x > maxx or y < miny or y > maxy:      # Determine whether the point is outside the graph 判断点是否在图形外部
         return True
     return False
 
-# categorize point
-
-
-def categorize_point(x, y, polygon):
-
-    if mbr_method(x, y, polygon):  # true运行里面的东西，false就不运行了
-        return "outside"
-    for line in polygon.get_lines():
-        if is_point_on_the_line(x, y, line):
-            return "boundary"
-    xr, yr = get_ray(x, y, polygon)
-    count = 0
-    for line in polygon.get_lines():
-        if is_ray_cross_line(x, y, xr, yr, line):
-            count = count+1
-    if count % 2 == 1:
-        return "inside"
-    return "outside"
+# Create RCA method,
+# Define a ray that does not pass through the vertices of the graph 定义一条不穿过顶点的射线
 
 
 def get_ray(x, y, polygon):
-    xr = 6
+    xr = 6  # 设定为了使射线长一些的初始值（？
     yr = 5
     n = 1
     while n != 0:
         xr = xr + 1
         yr = yr + xr+1
-        if int((x-xr) * 10) != 0 and int((y-yr) * 10) != 0:
+        if int((x-xr) * 10) != 0 and int((y-yr) * 10) != 0:  # 避免选取的射线浮点和原浮点重合, 因为选取的是浮点，利用*10表示点的精准度
             n = 0
             for point in polygon.get_points()[1:]:
-                point = list(map(float, point))
-                if round(((point[2]-y)*(xr-x)-(yr-y)*(point[1]-x))*100) == 0:
+                point = list(map(float, point))  # 数据类型转变为float
+                if round(((point[2]-y)*(xr-x)-(yr-y)*(point[1]-x))*100) == 0:  # 引入数据判断，*100
                     n = n + 1
     return xr, yr
+# define点在线上的情况 浮点数：*1000表示精准性
 
 
 def is_point_on_the_line(x, y, line):
-    c = list(map(float, line.get_point()))
+    c = list(map(float, line.get_point()))  # 把点转换成float
     if round(((x-c[0])*(c[3]-c[1])-(c[2]-c[0])*(y-c[1]))*1000) == 0\
         and ((min(c[0], c[2]) <= x and x <= max(c[0], c[2])) or -0.001 < (x - c[0]) < 0.001)\
         and ((min(c[1], c[3]) <= y and y <= max(c[1], c[3])) or -0.001 < (y - c[1]) < 0.001):
         return True
     return False
+# Define 射线穿过图形线段
 
 
 def is_ray_cross_line(xo, yo, xr, yr, line):
     c = list(map(float, line.get_point()))
-    m1 = (yr-yo)/(xr-xo)
-    b1 = -((yr-yo)/(xr-xo))*xo+yo
-    if(c[2]-c[0]) == 0:
+    m1 = (yr-yo)/(xr-xo)  # 表示射线斜率
+    b1 = -((yr-yo)/(xr-xo))*xo+yo  # 表示射线
+    if(c[2]-c[0]) == 0:  # 判断射线平行于y轴的情况
         xc = c[0]
         yc = m1*xc+b1
         if(is_point_on_the_line(xc, yc, line) and
@@ -136,7 +121,7 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
         return False
     m2 = (c[3]-c[1])/(c[2]-c[0])
     b2 = -((c[3]-c[1])/(c[2]-c[0]))*c[0]+c[1]
-    if m1 == m2:
+    if m1 == m2:  # 判断射线平行于x轴和斜率不为0的情况
         return False
     xc = (b2-b1)/(m1-m2)
     yc = (b2*m1 - b1*m2)/(m1-m2)
@@ -145,14 +130,32 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
             return True
     return False
 
+# Define categorize point
+
+
+def categorize_point(x, y, polygon):
+
+    if mbr_method(x, y, polygon):  # Use MBR method 调用MBR方法(true运行里面的东西，false就不运行了 文档内解释）
+        return "outside"
+    for line in polygon.get_lines():  # 分类出点在线上的情况
+        if is_point_on_the_line(x, y, line):
+            return "boundary"
+    xr, yr = get_ray(x, y, polygon)  # Use get_ray method
+    count = 0
+    for line in polygon.get_lines():
+        if is_ray_cross_line(x, y, xr, yr, line):  # Use ray_cross_line method
+            count = count+1
+    if count % 2 == 1:
+        return "inside"  # 交点是奇数个，点在图形内部
+    return "outside"  # 交点是偶数个，点在图形外部
+
 
 def main():
-    plotter = Plotter()
+    plotter = Plotter()  # 调用 plotter方法画图
     print('read polygon.csv')
     polygon_points = read_file("polygon.csv")  # 相对路径读取文件
     polygon = Polygon(polygon_points)
 
-    # print(polygon.get_line(1).get_name())
     print('read input.csv')
     input_points = read_file("input.csv")
 
@@ -161,13 +164,13 @@ def main():
     for point in input_points[1:]:
         categorize_output.append(categorize_point(float(point[1]), float(point[2]), polygon))
 
-    print('write output.csv')
+    print('write output.csv')  # 创建输出的csv文件
     with open("output.csv", 'w') as f:
         f.writelines('id' + ',' + 'category' + '\n')
         for i in range(len(categorize_output)):
             f.writelines(str(i + 1) + ',' + categorize_output[i] + '\n')
 
-    print('plot polygon and points')
+    print('plot polygon and points')  # 作图
     xs = []
     ys = []
     for point in polygon_points[1:]:
@@ -180,7 +183,7 @@ def main():
         plotter.add_point(xo, yo, kind=categorize_output[i])
         if categorize_output[i] != 'boundary':
             xr, yr = get_ray(xo, yo, polygon)
-            plotter.add_ray(xo, yo, xr, yr)
+            plotter.add_ray(xo, yo, xr, yr)  # 在图上画出射线
     plotter.show()
 
 
