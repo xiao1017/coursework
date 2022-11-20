@@ -114,7 +114,7 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
     if(c[2]-c[0]) == 0:
         xc = c[0]
         yc = m1*xc+b1
-        if(is_point_on_the_line(xc, yc, line)and
+        if(is_point_on_the_line(xc, yc, line) and
             ((xc-xo)*(xr-xo) >= 0 and (yc-yo)*(yr-yo) >= 0)):
             return True
         return False
