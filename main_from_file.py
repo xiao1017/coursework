@@ -3,7 +3,7 @@ from plotter import Plotter
 # 利用四个点建立line
 
 
-class Line():
+class Line:
     def __init__(self, name, x1, y1, x2, y2):
         self.__name = name
         self.__x1 = float(x1)
@@ -20,7 +20,7 @@ class Line():
 # 建立图形的class,并建立lines的list，第一行是名称 ，两个点组成一条线，用for循环-2,0行是id,因此选择point从1列开始
 
 
-class Polygon():
+class Polygon:
     def __init__(self, points):
         self.__points = points
         lines = []
@@ -49,9 +49,9 @@ class Polygon():
     def get_line(self, index):
         return self.__lines[index]
 
-
-
 # 定义读取文件
+
+
 def read_file(file_address):
     with open(file_address) as f:
         data = f.read().splitlines()
@@ -83,15 +83,15 @@ def mbr_method(x, y, polygon):
 
 def categorize_point(x, y, polygon):
 
-    if mbr_method(x, y, polygon): # true运行里面的东西，false就不运行了
+    if mbr_method(x, y, polygon):  # true运行里面的东西，false就不运行了
         return "outside"
     for line in polygon.get_lines():
-        if(is_point_on_the_line(x, y, line)):
+        if is_point_on_the_line(x, y, line):
             return "boundary"
     xr, yr = get_ray(x, y, polygon)
     count = 0
     for line in polygon.get_lines():
-        if(is_ray_cross_line(x, y, xr, yr, line)):
+        if is_ray_cross_line(x, y, xr, yr, line):
             count = count+1
     if count % 2 == 1:
         return "inside"
@@ -117,7 +117,7 @@ def get_ray(x, y, polygon):
 def is_point_on_the_line(x, y, line):
     c = list(map(float, line.get_point()))
     if round(((x-c[0])*(c[3]-c[1])-(c[2]-c[0])*(y-c[1]))*1000) == 0\
-        and ((min(c[0], c[2]) <= x and x <= max(c[0], c[2])) or -0.001 < (x - c[0]) < 0.001) \
+        and ((min(c[0], c[2]) <= x and x <= max(c[0], c[2])) or -0.001 < (x - c[0]) < 0.001)\
         and ((min(c[1], c[3]) <= y and y <= max(c[1], c[3])) or -0.001 < (y - c[1]) < 0.001):
         return True
     return False
@@ -130,7 +130,7 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
     if(c[2]-c[0]) == 0:
         xc = c[0]
         yc = m1*xc+b1
-        if(is_point_on_the_line(xc, yc, line)and
+        if(is_point_on_the_line(xc, yc, line) and
             ((xc-xo)*(xr-xo) >= 0 and (yc-yo)*(yr-yo) >= 0)):
             return True
         return False
@@ -178,7 +178,7 @@ def main():
         xo = float(input_points[i + 1][1])
         yo = float(input_points[i + 1][2])
         plotter.add_point(xo, yo, kind=categorize_output[i])
-        if (categorize_output[i] != 'boundary'):
+        if categorize_output[i] != 'boundary':
             xr, yr = get_ray(xo, yo, polygon)
             plotter.add_ray(xo, yo, xr, yr)
     plotter.show()
@@ -186,5 +186,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
