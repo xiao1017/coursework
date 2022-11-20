@@ -10,7 +10,8 @@ def read_file(file_address):
         point_list.append(row.split(','))
     return point_list
 
-class Line():
+
+class Line:
     def __init__(self, name, x1, y1, x2, y2):
         self.__name = name
         self.__x1 = float(x1)
@@ -25,7 +26,7 @@ class Line():
         return self.__x1, self.__y1, self.__x2, self.__y2
 
 
-class Polygon():
+class Polygon:
     def __init__(self, points):
         self.__points = points
         lines = []
@@ -45,7 +46,7 @@ class Polygon():
         return self.__lines
 
     def get_line(self, index):
-        return self.__lines(index)
+        return self.__lines[index]
 
 
 def mbr_method(x, y, polygon):
@@ -68,19 +69,20 @@ def mbr_method(x, y, polygon):
 
 def categorize_point(x, y, polygon):
 
-    if mbr_method(x, y, polygon): # true运行里面的东西，false就不运行了
+    if mbr_method(x, y, polygon):  # true运行里面的东西，false就不运行了
         return "outside"
     for line in polygon.get_lines():
-        if(is_point_on_the_line(x, y, line)):
+        if is_point_on_the_line(x, y, line):
             return "boundary"
     xr, yr = get_ray(x, y, polygon)
     count = 0
     for line in polygon.get_lines():
-        if(is_ray_cross_line(x, y, xr, yr, line)):
+        if is_ray_cross_line(x, y, xr, yr, line):
             count = count+1
     if count % 2 == 1:
         return "inside"
     return "outside"
+
 
 def get_ray(x, y, polygon):
     xr = 6
@@ -101,7 +103,7 @@ def get_ray(x, y, polygon):
 def is_point_on_the_line(x, y, line):
     c = list(map(float, line.get_point()))
     if round(((x-c[0])*(c[3]-c[1])-(c[2]-c[0])*(y-c[1]))*1000) == 0\
-        and ((min(c[0], c[2]) <= x and x <= max(c[0], c[2])) or -0.001 < (x - c[0]) < 0.001) \
+        and ((min(c[0], c[2]) <= x and x <= max(c[0], c[2])) or -0.001 < (x - c[0]) < 0.001)\
         and ((min(c[1], c[3]) <= y and y <= max(c[1], c[3])) or -0.001 < (y - c[1]) < 0.001):
         return True
     return False
@@ -128,6 +130,7 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
         if ((xc-xo)*(xr-xo)) >= 0 and ((yc-yo)*(yr-yo)) >= 0:
             return True
     return False
+
 
 def check_number(x):
     if x.isdigit():  # 采用.isdigit()方法对内容做基本判断
@@ -169,7 +172,7 @@ def main():
         ys.append(float(point[2]))
     plotter.add_polygon(xs, ys)
     plotter.add_point(float(x), float(y), kind=categorize_output)
-    if(categorize_output != 'boundary'):
+    if categorize_output != 'boundary':
         xr, yr = get_ray(x, y, polygon)
         plotter.add_ray(x, y, xr, yr)
     plotter.show()
