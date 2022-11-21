@@ -131,9 +131,8 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
             return True
     return False
 
-# 对输入内容进行进行检查
 
-
+# 异常处理，检查输入内容是否为数字
 def check_number(x):
     if x.isdigit():  # 采用.isdigit()方法对内容做基本判断
         return True
@@ -156,7 +155,7 @@ def main():
     print('Insert point information')   # 用户输入
     x = input('x coordinate: ')
     y = input('y coordinate: ')
-    while not (check_number(x) and check_number(y)):  # 检测输入的 x, y为float
+    while not (check_number(x) and check_number(y)):  # 异常处理，测输入的 x, y为数字
         print("The input character is invalid, please re-enter……")
         x = input('x coordinate: ')
         y = input('y coordinate: ')
