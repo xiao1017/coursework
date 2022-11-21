@@ -1,7 +1,7 @@
-
 from plotter import Plotter
 
 
+# define read file from file_address
 def read_file(file_address):
     with open(file_address) as f:
         data = f.read().splitlines()
@@ -11,6 +11,7 @@ def read_file(file_address):
     return point_list
 
 
+#  Create a line class, use (x1, y1), (x2, y2) to represent the line
 class Line:
     def __init__(self, name, x1, y1, x2, y2):
         self.__name = name
@@ -26,10 +27,12 @@ class Line:
         return self.__x1, self.__y1, self.__x2, self.__y2
 
 
+# Create a polygon class and create a list of lines
 class Polygon:
     def __init__(self, points):
-        self.__points = points
+        self.__points = points   # data type is[[id,x,y],[str,str,str],...]
         lines = []
+        # Create line list according to pointlist, [0] row is ID row, two points make a line, thus -2
         for i in range(len(points)-2):
             line = Line(name=points[i+1][0]+'-'+points[i+2][0], x1=points[i+1][1],
                         y1=points[i+1][2], x2=points[i+2][1], y2=points[i+2][2])
@@ -39,16 +42,19 @@ class Polygon:
     def get_points(self):
         return self.__points
 
+# Define to get a specific point according to index
     def get_point(self, index):
         return self.__points[index]
 
     def get_lines(self):
         return self.__lines
 
+# Define to get a specific line according to index
     def get_line(self, index):
         return self.__lines[index]
 
 
+# Define MBR method
 def mbr_method(x, y, polygon):
     minx = float(polygon.get_point(1)[1])
     maxx = float(polygon.get_point(1)[1])
@@ -60,30 +66,12 @@ def mbr_method(x, y, polygon):
         maxx = max(maxx, point[1])
         miny = min(miny, point[2])
         maxy = max(maxy, point[2])
-    if x < minx or x > maxx or y < miny or y > maxy:      # 没用括号 判断点是否在区域外
+    if x < minx or x > maxx or y < miny or y > maxy:     # Determine whether the point is outside the rectangle
         return True
     return False
 
-# categorize point
 
-
-def categorize_point(x, y, polygon):
-
-    if mbr_method(x, y, polygon):  # true运行里面的东西，false就不运行了
-        return "outside"
-    for line in polygon.get_lines():
-        if is_point_on_the_line(x, y, line):
-            return "boundary"
-    xr, yr = get_ray(x, y, polygon)
-    count = 0
-    for line in polygon.get_lines():
-        if is_ray_cross_line(x, y, xr, yr, line):
-            count = count+1
-    if count % 2 == 1:
-        return "inside"
-    return "outside"
-
-
+# Get a ray that does not pass through the vertices of the graph
 def get_ray(x, y, polygon):
     xr = 6
     yr = 5
@@ -130,6 +118,23 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
         if ((xc-xo)*(xr-xo)) >= 0 and ((yc-yo)*(yr-yo)) >= 0:
             return True
     return False
+
+
+def categorize_point(x, y, polygon):
+
+    if mbr_method(x, y, polygon):  # true运行里面的东西，false就不运行了
+        return "outside"
+    for line in polygon.get_lines():
+        if is_point_on_the_line(x, y, line):
+            return "boundary"
+    xr, yr = get_ray(x, y, polygon)
+    count = 0
+    for line in polygon.get_lines():
+        if is_ray_cross_line(x, y, xr, yr, line):
+            count = count+1
+    if count % 2 == 1:
+        return "inside"
+    return "outside"
 
 
 # 异常处理，检查输入内容是否为数字
