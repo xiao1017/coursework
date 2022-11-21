@@ -1,17 +1,17 @@
 from plotter import Plotter
 
 
-# define read file from file_address
+# Define read file from file_address
 def read_file(file_address):
     with open(file_address) as f:
         data = f.read().splitlines()
-    point_list = []
+    point_list = []  # Creat point list
     for row in data:
         point_list.append(row.split(','))
     return point_list
 
 
-#  Create a line class, use (x1, y1), (x2, y2) to represent the line
+# Create a line class, use (x1, y1), (x2, y2) to represent the line
 class Line:
     def __init__(self, name, x1, y1, x2, y2):
         self.__name = name
@@ -30,9 +30,9 @@ class Line:
 # Create a polygon class and create a list of lines
 class Polygon:
     def __init__(self, points):
-        self.__points = points   # data type is[[id,x,y],[str,str,str],...]
+        self.__points = points   # Data type is[[id,x,y],[str,str,str],...]
         lines = []
-        # Create line list according to pointlist, [0] row is ID row, two points make a line, thus -2
+        # Create line list according to pointlist
         for i in range(len(points)-2):
             line = Line(name=points[i+1][0]+'-'+points[i+2][0], x1=points[i+1][1],
                         y1=points[i+1][2], x2=points[i+2][1], y2=points[i+2][2])
@@ -42,14 +42,14 @@ class Polygon:
     def get_points(self):
         return self.__points
 
-# Define to get a specific point according to index
+    # Define to get a specific point according to index
     def get_point(self, index):
         return self.__points[index]
 
     def get_lines(self):
         return self.__lines
 
-# Define to get a specific line according to index
+    # Define to get a specific line according to index
     def get_line(self, index):
         return self.__lines[index]
 
@@ -66,7 +66,8 @@ def mbr_method(x, y, polygon):
         maxx = max(maxx, point[1])
         miny = min(miny, point[2])
         maxy = max(maxy, point[2])
-    if x < minx or x > maxx or y < miny or y > maxy:     # Determine whether the point is outside the rectangle
+    # Determine whether the point is outside the rectangle
+    if x < minx or x > maxx or y < miny or y > maxy:
         return True
     return False
 
@@ -77,30 +78,38 @@ def get_ray(x, y, polygon):
     yr = 5
     n = 1
     while n != 0:
-        xr = xr + 1
+        xr = xr + 1   # Get new points
         yr = yr + xr+1
-        if int((x-xr) * 10) != 0 and int((y-yr) * 10) != 0:
+        # Avoid overlapping selected ray float with original float
+        # Precision of *1000 is used to represent the float
+        if int((x-xr) * 1000) != 0 and int((y-yr) * 1000) != 0:
             n = 0
-            for point in polygon.get_points()[1:]:
-                point = list(map(float, point))
+            for point in polygon.get_points()[1:]:  # Judgment point coincidence
+                point = list(map(float, point))  # Data type converted to float
                 if round(((point[2]-y)*(xr-x)-(yr-y)*(point[1]-x))*100) == 0:
                     n = n + 1
     return xr, yr
 
 
+# Determine whether the point is on a line segment
 def is_point_on_the_line(x, y, line):
     c = list(map(float, line.get_point()))
+    # Determine whether three points on one line, the point in rectangle
     if round(((x-c[0])*(c[3]-c[1])-(c[2]-c[0])*(y-c[1]))*1000) == 0\
-        and ((min(c[0], c[2]) <= x and x <= max(c[0], c[2])) or -0.001 < (x - c[0]) < 0.001)\
-        and ((min(c[1], c[3]) <= y and y <= max(c[1], c[3])) or -0.001 < (y - c[1]) < 0.001):
+        and ((min(c[0], c[2]) <= x and x <= max(c[0], c[2]))
+             or -0.001 < (x - c[0]) < 0.001)\
+        and ((min(c[1], c[3]) <= y and y <= max(c[1], c[3]))
+             or -0.001 < (y - c[1]) < 0.001):
         return True
     return False
 
 
+# Judging that the ray passes through the graphic line segment
 def is_ray_cross_line(xo, yo, xr, yr, line):
     c = list(map(float, line.get_point()))
-    m1 = (yr-yo)/(xr-xo)
-    b1 = -((yr-yo)/(xr-xo))*xo+yo
+    m1 = (yr-yo)/(xr-xo)  # The slope of the ray
+    b1 = -((yr-yo)/(xr-xo))*xo+yo  # The ray intercept
+    # Judging the situation where the ray is parallel to the y-axis
     if(c[2]-c[0]) == 0:
         xc = c[0]
         yc = m1*xc+b1
@@ -110,9 +119,10 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
         return False
     m2 = (c[3]-c[1])/(c[2]-c[0])
     b2 = -((c[3]-c[1])/(c[2]-c[0]))*c[0]+c[1]
+    # Judging the ray is parallel to the x-axis, the slope of the ray not 0
     if m1 == m2:
         return False
-    xc = (b2-b1)/(m1-m2)
+    xc = (b2-b1)/(m1-m2)  # Intersection coordinates
     yc = (b2*m1 - b1*m2)/(m1-m2)
     if is_point_on_the_line(xc, yc, line):
         if ((xc-xo)*(xr-xo)) >= 0 and ((yc-yo)*(yr-yo)) >= 0:
@@ -120,33 +130,37 @@ def is_ray_cross_line(xo, yo, xr, yr, line):
     return False
 
 
+# Define categorize point
 def categorize_point(x, y, polygon):
-
-    if mbr_method(x, y, polygon):  # true运行里面的东西，false就不运行了
+    if mbr_method(x, y, polygon):  # Use MBR method
         return "outside"
-    for line in polygon.get_lines():
+    for line in polygon.get_lines():  # Classify points on a line segments
         if is_point_on_the_line(x, y, line):
             return "boundary"
+    # Use RcA method
     xr, yr = get_ray(x, y, polygon)
     count = 0
     for line in polygon.get_lines():
+        # number of times the ray crosses the edge
         if is_ray_cross_line(x, y, xr, yr, line):
             count = count+1
     if count % 2 == 1:
-        return "inside"
-    return "outside"
+        return "inside"  # Number of intersection points is odd
+    return "outside"  # Number of intersection points is even
 
 
-# 异常处理，检查输入内容是否为数字
+# Exception handling, check if the input is a number
 def check_number(x):
-    if x.isdigit():  # 采用.isdigit()方法对内容做基本判断
+    # Use the .isdigit() method to make basic judgments on the content
+    if x.isdigit():
         return True
-    if x.count('.') == 1:  # 判断输入是小数的情况
+    if x.count('.') == 1:  # Determine if the input is a decimal
         left = x.split('.')[0]
         right = x.split('.')[1]
         if left.isdigit() and right.isdigit():
             return True
-        if left.startswith('-') and left[1:].isdigit():  # 判断输入是负数的情况
+        # Determine if the input is negative
+        if left.startswith('-') and left[1:].isdigit():
             return True
     return False
 
@@ -154,13 +168,14 @@ def check_number(x):
 def main():
     plotter = Plotter()
     print('read polygon.csv')
-    polygon_points = read_file("polygon.csv")
+    polygon_points = read_file("polygon.csv")  # Relative path to read file
     polygon = Polygon(polygon_points)
 
-    print('Insert point information')   # 用户输入
+    print('Insert point information')   # User input
     x = input('x coordinate: ')
     y = input('y coordinate: ')
-    while not (check_number(x) and check_number(y)):  # 异常处理，测输入的 x, y为数字
+    # Exception handling, the input x, y are numbers
+    while not (check_number(x) and check_number(y)):
         print("The input character is invalid, please re-enter……")
         x = input('x coordinate: ')
         y = input('y coordinate: ')
